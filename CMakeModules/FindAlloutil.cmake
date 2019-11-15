@@ -19,13 +19,13 @@ find_path(ALLOUTIL_INCLUDE_DIR
   NAMES
     alloutil/al_Lua.hpp
   PATHS
+  ${CMAKE_SOURCE_DIR}/AlloSystem/alloutil
     ${ALLOUTIL_PKGCONF_INCLUDE_DIRS}
     ./
     ../alloutil
     /usr/include
     /usr/local/include
     /opt/local/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/../AlloSystem/alloutil
     ${ALLOUTIL_ROOT}/alloutil
 )
 
@@ -34,11 +34,11 @@ find_library(ALLOUTIL_LIBRARY
   NAMES
     alloutil
   PATHS
+  ${CMAKE_SOURCE_DIR}/AlloSystem/build/lib
     ${ALLOUTIL_PKGCONF_LIBRARY_DIRS}
     ./build/lib
     ../build/lib /usr/lib
     /usr/local/lib /opt/local/lib
-    ${CMAKE_CURRENT_SOURCE_DIR}/../AlloSystem/build/lib
     ${ALLOUTIL_ROOT}/build/lib
 )
 

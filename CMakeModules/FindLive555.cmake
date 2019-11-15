@@ -21,6 +21,8 @@ if (NOT Live555_FOUND)
 			${Live555_ROOT}/live/${library}/include
 			/usr/local/include/${library}
 			/usr/local/include/${lowercase_library}
+                        /usr/include/${library}
+                        /usr/include/${lowercase_library}
 		)
 		
 		if (Live555_${library}_INCLUDE_DIR)
@@ -37,6 +39,9 @@ if (NOT Live555_FOUND)
 				PATHS
 				${Live555_ROOT}/lib/${mode}
 				${Live555_ROOT}/${library}
+                                /usr/lib/${library}
+                                /usr/lib/${lowercase_library}
+                                usr/lib/x86_64-linux-gnu/
 			)
 			if (Live555_${library}_LIBRARY_${mode})
 				if (${mode} STREQUAL RELEASE) 

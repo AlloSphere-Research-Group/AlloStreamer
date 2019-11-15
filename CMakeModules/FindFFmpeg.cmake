@@ -39,26 +39,29 @@ MACRO(FFMPEG_FIND varname shortname headername)
         /opt/csw/include/lib${shortname} # Blastwave
         /opt/include/lib${shortname}
         /usr/freeware/include/lib${shortname}
+        /usr/include/x86_64-linux-gnu/lib${shortname}
         PATH_SUFFIXES ffmpeg
         DOC "Location of FFMPEG Headers"
     )
 
-    FIND_PATH(FFMPEG_${varname}_INCLUDE_DIRS ${headername}
-        PATHS
-        ${FFMPEG_ROOT}/include
-        $ENV{FFMPEG_DIR}/include
-        ~/Library/Frameworks
-        /Library/Frameworks
-        /usr/local/include
-        /usr/include
-        /sw/include # Fink
-        /opt/local/include # DarwinPorts
-        /opt/csw/include # Blastwave
-        /opt/include
-        /usr/freeware/include
-        PATH_SUFFIXES ffmpeg
-        DOC "Location of FFMPEG Headers"
-    )
+#    FIND_PATH(FFMPEG_${varname}_INCLUDE_DIRS ${headername}
+#        PATHS
+#        ${FFMPEG_ROOT}/include
+#        $ENV{FFMPEG_DIR}/include
+#        ~/Library/Frameworks
+#        /Library/Frameworks
+#        /usr/local/include
+#        /usr/include
+#        /sw/include # Fink
+#        /opt/local/include # DarwinPorts
+#        /opt/csw/include # Blastwave
+#        /opt/include
+#        /usr/freeware/include
+#        /usr/include/x86_64-linux-gnu
+#        PATH_SUFFIXES ffmpeg
+#        DOC "Location of FFMPEG Headers"
+#    )
+#  message ("Found FFMPEG header at ${FFMPEG_${varname}_INCLUDE_DIRS}")
 
     FIND_LIBRARY(FFMPEG_${varname}_LIBRARIES
         NAMES ${shortname}
@@ -76,9 +79,11 @@ MACRO(FFMPEG_FIND varname shortname headername)
         /opt/csw/lib
         /opt/lib
         /usr/freeware/lib64
+        /usr/lib/x86_64-linux-gnu
         DOC "Location of FFMPEG Libraries"
     )
 
+    message ("Found FFMPEG library at ${FFMPEG_${varname}_LIBRARIES}")
     IF (FFMPEG_${varname}_LIBRARIES AND FFMPEG_${varname}_INCLUDE_DIRS)
         SET(FFMPEG_${varname}_FOUND 1)
     ENDIF(FFMPEG_${varname}_LIBRARIES AND FFMPEG_${varname}_INCLUDE_DIRS)
