@@ -9,7 +9,7 @@
 	#else
 		#define UNITY_OSX 1
 	#endif
-#elif defined(__linux__)
+#elif defined(__linux__) || defined(linux)
 #define UNITY_LINUX 1
 #elif defined(UNITY_METRO) || defined(UNITY_ANDROID)
 // these are defined externally

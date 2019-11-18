@@ -4,7 +4,7 @@
 #include <boost/thread/barrier.hpp>
 #include <boost/thread/synchronized_value.hpp>
 #include <boost/thread/condition.hpp>
-#include <boost/thread.hpp>
+#include <thread>
 
 extern "C"
 {
@@ -50,7 +50,7 @@ protected:
 private:
 	EventTriggerId eventTriggerId;
 	static void deliverFrame0(void* clientData);
-	static boost::mutex triggerEventMutex;
+	static std::mutex triggerEventMutex;
 	static std::vector<H264NALUSource*> sourcesReadyForDelivery;
 	void deliverFrame();
 
@@ -76,8 +76,8 @@ private:
 	Frame* content;
 	AVCodecContext* codecContext;
 
-	boost::thread frameContentThread;
-	boost::thread encodeFrameThread;
+	std::thread frameContentThread;
+	std::thread encodeFrameThread;
 
 	void frameContentLoop();
 	void encodeFrameLoop();

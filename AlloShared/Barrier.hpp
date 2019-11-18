@@ -2,7 +2,7 @@
 
 #include <boost/interprocess/sync/interprocess_mutex.hpp>
 #include <boost/interprocess/sync/interprocess_condition.hpp>
-#include <boost/chrono.hpp>
+#include <chrono>
 
 class Barrier
 {
@@ -10,7 +10,7 @@ public:
 	Barrier(size_t number);
     
 	void wait();
-	bool timedWait(boost::chrono::microseconds timeout);
+    bool timedWait(std::chrono::microseconds timeout);
 	void reset();
     
 private:

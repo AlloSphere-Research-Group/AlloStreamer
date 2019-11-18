@@ -1,18 +1,16 @@
 #include <GroupsockHelper.hh> // for "gettimeofday()"
 #include <stdint.h>
 #include <time.h>
-#include <boost/thread.hpp>
 #include <boost/interprocess/containers/deque.hpp>
 #include <ctime>
+#include <thread>
 #include <chrono>
 #include <iomanip>
 
 #include "config.h"
 #include "H264NALUSource.hpp"
 
-namespace bc = boost::chrono;
-
-boost::mutex H264NALUSource::triggerEventMutex;
+std::mutex H264NALUSource::triggerEventMutex;
 std::vector<H264NALUSource*> H264NALUSource::sourcesReadyForDelivery;
 
 int H264NALUSource::x2yuv(AVFrame *xFrame, AVFrame *yuvFrame, AVCodecContext *c)
@@ -165,11 +163,11 @@ H264NALUSource::H264NALUSource(UsageEnvironment& env,
 
 	//std::cout << this << ": eventTriggerId: " << eventTriggerId  << std::endl;
 
-	frameContentThread = boost::thread(boost::bind(&H264NALUSource::frameContentLoop, this));
+    frameContentThread = std::thread(std::bind(&H264NALUSource::frameContentLoop, this));
 
-	encodeFrameThread  = boost::thread(boost::bind(&H264NALUSource::encodeFrameLoop,  this));
+    encodeFrameThread  = std::thread(std::bind(&H264NALUSource::encodeFrameLoop,  this));
 
-	//eventThread        = boost::thread(boost::bind(&H264NALUSource::eventLoop, this));
+    //eventThread        = std::thread(std::bind(&H264NALUSource::eventLoop, this));
 
 	lastFrameTime = av_gettime();
 }
@@ -227,7 +225,7 @@ void H264NALUSource::frameContentLoop()
 		}
 
 		// End this thread when CubemapExtractionPlugin closes
-		while (!content->getBarrier().timedWait(boost::chrono::milliseconds(1000)))
+		while (!content->getBarrier().timedWait(std::chrono::milliseconds(1000)))
 		{
 			if (destructing)
 			{
@@ -238,7 +236,7 @@ void H264NALUSource::frameContentLoop()
 		//content->getBarrier().wait();
 
 		AVRational microSecBase = { 1, 1000000 };
-		bc::microseconds presentationTimeSinceEpochMicroSec;
+        std::chrono::microseconds presentationTimeSinceEpochMicroSec;
 
 		int_least64_t x;
 		{
@@ -255,14 +253,14 @@ void H264NALUSource::frameContentLoop()
 			// It is in the past probably but we will try our best
 			
 			presentationTimeSinceEpochMicroSec =
-				bc::duration_cast<bc::microseconds>(content->getPresentationTime().time_since_epoch());
+                std::chrono::duration_cast<std::chrono::microseconds>(content->getPresentationTime().time_since_epoch());
 
 			x = content->getPresentationTime().time_since_epoch().count();
 		}
         
 		
 
-//        const time_t time = bc::system_clock::to_time_t(face->getPresentationTime());
+//        const time_t time = std::chrono::system_clock::to_time_t(face->getPresentationTime());
 //
 //        // Maybe the put_time will be implemented later?
 //        struct tm* tm = localtime(&time);
@@ -313,7 +311,7 @@ void H264NALUSource::doGetNextFrame()
 
 void H264NALUSource::deliverFrame0(void* clientData)
 {
-	boost::mutex::scoped_lock lock(triggerEventMutex);
+    std::unique_lock<std::mutex> lock(triggerEventMutex);
 	for (H264NALUSource* source : sourcesReadyForDelivery)
 	{
 		source->deliverFrame();
@@ -466,7 +464,7 @@ void H264NALUSource::encodeFrameLoop()
 				pktBuffer.push(naluPkt);
 
 				{
-					boost::mutex::scoped_lock lock(triggerEventMutex);
+                    std::unique_lock<std::mutex> lock(triggerEventMutex);
 					sourcesReadyForDelivery.push_back(this);
 					envir().taskScheduler().triggerEvent(eventTriggerId, nullptr);
 				}
@@ -638,5 +636,5 @@ void H264NALUSource::deliverFrame()
 
 	//std::cout << this << ": delivered" << std::endl;
 
-	//boost::this_thread::sleep_for(boost::chrono::microseconds((size_t)(1 * fFrameSize)));
+	//boost::this_thread::sleep_for(std::chrono::microseconds((size_t)(1 * fFrameSize)));
 }

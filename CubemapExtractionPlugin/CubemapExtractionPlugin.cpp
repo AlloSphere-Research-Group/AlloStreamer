@@ -2,7 +2,7 @@
 
 #include <math.h>
 #include <stdio.h>
-#include <boost/thread.hpp>
+#include <thread>
 #include <boost/interprocess/managed_shared_memory.hpp>
 #include <boost/interprocess/offset_ptr.hpp>
 #include <vector>
@@ -25,14 +25,14 @@ Frame* getFrameFromTexture(void* texturePtr);
 static ShmAllocator* shmAllocator = nullptr;
 static Process* thisProcess = nullptr;
 static Process alloServerProcess(ALLOSERVER_ID, false);
-static boost::chrono::system_clock::time_point presentationTime;
-static boost::mutex d3D11DeviceContextMutex;
+static std::chrono::system_clock::time_point presentationTime;
+static std::mutex d3D11DeviceContextMutex;
 static boost::interprocess::managed_shared_memory shm;
 static Binoculars* binoculars = nullptr;
 static StereoCubemap::Ptr cubemap;
-static boost::mutex mutex;
+static std::mutex mutex;
 static bool closeResetIPCThread;
-static boost::thread resetIPCThread;
+static std::thread resetIPCThread;
 
 struct CubemapConfig
 {
@@ -67,15 +67,15 @@ void resetIPCLoop()
 {
 	while (true)
 	{
-		while (!alloServerProcess.timedWaitForBirth(boost::chrono::milliseconds(100)))
+		while (!alloServerProcess.timedWaitForBirth(std::chrono::milliseconds(100)))
 		{
 			if (closeResetIPCThread) return;
 		}
-		while (!alloServerProcess.timedJoin(boost::chrono::milliseconds(100)))
+		while (!alloServerProcess.timedJoin(std::chrono::milliseconds(100)))
 		{
 			if (closeResetIPCThread) return;
 		}
-		boost::mutex::scoped_lock lock(mutex);
+        std::unique_lock<std::mutex> lock(mutex);
 		for (int j = 0; j < cubemap->getEyesCount(); j++)
 		{
 			Cubemap* eye = cubemap->getEye(j);
@@ -167,14 +167,14 @@ void allocateSHM(CubemapConfig* cubemapConfig, BinocularsConfig* binocularsConfi
     thisProcess = new Process(CUBEMAPEXTRACTIONPLUGIN_ID, true);
 
 	closeResetIPCThread = false;
-	resetIPCThread = boost::thread(&resetIPCLoop);
+	resetIPCThread = std::thread(&resetIPCLoop);
 }
 
 
 
 void releaseSHM()
 {
-	boost::mutex::scoped_lock lock(mutex);
+    std::unique_lock<std::mutex> lock(mutex);
 	closeResetIPCThread = true;
     shm.destroy<Cubemap::Ptr>("Cubemap");
     cubemap = nullptr;
@@ -307,7 +307,7 @@ void copyFromGPUToCPU(Frame* frame)
 		FrameD3D11* frameD3D11 = (FrameD3D11*)frame;
         
         // DirectX 11 is not thread-safe
-        boost::mutex::scoped_lock lock(d3D11DeviceContextMutex);
+        std::mutex::scoped_lock lock(d3D11DeviceContextMutex);
         
         ID3D11DeviceContext* g_D3D11DeviceContext = NULL;
         g_D3D11Device->GetImmediateContext(&g_D3D11DeviceContext);
@@ -394,7 +394,7 @@ void copyFromGPUToCPU(Frame* frame)
 #endif
 	}
 
-	while (alloServerProcess.isAlive() && !frame->getBarrier().timedWait(boost::chrono::milliseconds(1000)))
+	while (alloServerProcess.isAlive() && !frame->getBarrier().timedWait(std::chrono::milliseconds(1000)))
 	{
 	}
 }
@@ -403,11 +403,11 @@ void copyFromGPUtoCPU (std::vector<Frame*>& frames)
 {
     if (g_DeviceType == kGfxRendererD3D9 || g_DeviceType == kGfxRendererD3D11)
     {
-        boost::thread* threads = new boost::thread[frames.size()];
+        std::thread* threads = new std::thread[frames.size()];
         
         for (int i = 0; i < frames.size(); i++)
         {
-            threads[i] = boost::thread(boost::bind(&copyFromGPUToCPU, frames[i]));
+            threads[i] = std::thread(std::bind(&copyFromGPUToCPU, frames[i]));
         }
         
         for (int i = 0; i < frames.size(); i++)
@@ -448,7 +448,7 @@ extern "C" void EXPORT_API UnityRenderEvent (int eventID)
 	// and binoculars respectively!
     if (eventID == 1)
     {
-		boost::mutex::scoped_lock lock(mutex);
+        std::unique_lock<std::mutex> lock(mutex);
 
         // Allocate cubemap the first time we render a frame.
         // By doing so, we can make sure that both
@@ -458,7 +458,7 @@ extern "C" void EXPORT_API UnityRenderEvent (int eventID)
             allocateSHM(cubemapConfig, binocularsConfig);
         }
         
-        presentationTime = boost::chrono::system_clock::now();
+        presentationTime = std::chrono::system_clock::now();
         
         std::vector<Frame*> frames;
         if (cubemap)

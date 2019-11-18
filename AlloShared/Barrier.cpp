@@ -20,7 +20,7 @@ void Barrier::wait()
 	}
 }
 
-bool Barrier::timedWait(boost::chrono::microseconds timeout)
+bool Barrier::timedWait(std::chrono::microseconds timeout)
 {
 	if (!mutex.timed_lock(boost::get_system_time() + boost::posix_time::microseconds(timeout.count())))
 	{

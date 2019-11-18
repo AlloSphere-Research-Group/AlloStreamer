@@ -1,6 +1,6 @@
-#include <boost/thread/mutex.hpp>
-#include <boost/thread/condition_variable.hpp>
-#include <boost/thread/thread.hpp>
+#include <mutex>
+#include <condition_variable>
+#include <thread>
 #include <stdio.h>
 #include <queue>
 
@@ -9,8 +9,8 @@ class ConcurrentQueue
 {
 private:
     std::queue<Data> the_queue;
-    mutable boost::mutex the_mutex;
-    boost::condition_variable the_condition_variable;
+    mutable std::mutex the_mutex;
+    std::condition_variable the_condition_variable;
     FILE* queueFile;
 public:
   ConcurrentQueue()
@@ -19,7 +19,7 @@ public:
   }
     void push(Data const& data)
     {
-        boost::mutex::scoped_lock lock(the_mutex);
+        std::unique_lock<std::mutex> lock(the_mutex);
         //fprintf(queueFile, "1Pushing, queue size: %i\n", the_queue.size());
         //fflush(queueFile);
         the_queue.push(data);
@@ -29,13 +29,13 @@ public:
     
     bool empty() const
     {
-        boost::mutex::scoped_lock lock(the_mutex);
+        std::unique_lock<std::mutex> lock(the_mutex);
         return the_queue.empty();
     }
     
     bool tryPop(Data& popped_value)
     {
-        boost::mutex::scoped_lock lock(the_mutex);
+        std::unique_lock<std::mutex> lock(the_mutex);
         if(the_queue.empty())
         {
             return false;
@@ -48,7 +48,7 @@ public:
     
     void waitAndPop(Data& popped_value)
     {
-        boost::mutex::scoped_lock lock(the_mutex);
+        std::unique_lock<std::mutex> lock(the_mutex);
         
         while(the_queue.empty())
         {

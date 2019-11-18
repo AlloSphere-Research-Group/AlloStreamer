@@ -8,7 +8,7 @@ class ConcurrentQueue
 {
 private:
     std::queue<Data> the_queue;
-    //mutable boost::mutex the_mutex;
+    //mutable std::mutex the_mutex;
     //boost::condition_variable the_condition_variable;
     sem_t sem;
     sem_t mutex;
@@ -20,7 +20,7 @@ public:
     }
     void push(Data const& data)
     {
-        //boost::mutex::scoped_lock lock(the_mutex);
+        //std::mutex::scoped_lock lock(the_mutex);
     	//sem_wait(&mutex);
     	//printf("1pushing...");
         the_queue.push(data);
@@ -35,13 +35,13 @@ public:
 
     bool empty() const
     {
-        //boost::mutex::scoped_lock lock(the_mutex);
+        //std::mutex::scoped_lock lock(the_mutex);
         return the_queue.empty();
     }
 
     bool try_pop(Data& popped_value)
     {
-        //boost::mutex::scoped_lock lock(the_mutex);
+        //std::mutex::scoped_lock lock(the_mutex);
         if(the_queue.empty())
         {
             return false;
@@ -54,7 +54,7 @@ public:
 
     void wait_and_pop(Data& popped_value)
     {
-        //boost::mutex::scoped_lock lock(the_mutex);
+        //std::mutex::scoped_lock lock(the_mutex);
     	//sem_wait(&mutex);
         while(the_queue.empty())
         {

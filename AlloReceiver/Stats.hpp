@@ -12,8 +12,8 @@ namespace AlloReceiver
 {
 	const int FACE_COUNT = 12;
 
-	Stats::StatValsMaker statValsMaker = [](boost::chrono::microseconds             window,
-	                                        boost::chrono::steady_clock::time_point now)
+	Stats::StatValsMaker statValsMaker = [](std::chrono::microseconds             window,
+	                                        std::chrono::steady_clock::time_point now)
 	{
 		std::list<Stats::StatVal> statVals;
 
@@ -162,12 +162,12 @@ namespace AlloReceiver
 		return statVals;
 	};
 
-	Stats::PostProcessorMaker postProcessorMaker = [](boost::chrono::microseconds             window,
-		                                              boost::chrono::steady_clock::time_point now)
+	Stats::PostProcessorMaker postProcessorMaker = [](std::chrono::microseconds             window,
+		                                              std::chrono::steady_clock::time_point now)
 	{
 		Stats::PostProcessor postProcessor = [window, now](std::map<std::string, double>& results)
 		{
-			unsigned long seconds = boost::chrono::duration_cast<boost::chrono::seconds>(window).count();
+			unsigned long seconds = std::chrono::duration_cast<std::chrono::seconds>(window).count();
 
 			results["fps"] = results["cubemapsCount"] / seconds;
 

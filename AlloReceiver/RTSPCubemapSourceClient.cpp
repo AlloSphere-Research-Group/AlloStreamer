@@ -5,6 +5,8 @@
 #include "H264CubemapSource.h"
 #include "RTSPCubemapSourceClient.hpp"
 
+#include <iomanip>
+
 void RTSPCubemapSourceClient::setOnDidConnect(const std::function<void (RTSPCubemapSourceClient*, CubemapSource*)>& onDidConnect)
 {
     this->onDidConnect = onDidConnect;
@@ -476,8 +478,8 @@ void RTSPCubemapSourceClient::continueAfterDESCRIBE(RTSPClient* self_, int resul
 
 	for (int i = 0; i < self->envs.size(); i++)
 	{
-		boost::thread* abc = new boost::thread(boost::bind(&TaskScheduler::doEventLoop, &self->envs[i]->taskScheduler(), nullptr));
-		self->sessionThreads.push_back(boost::shared_ptr<boost::thread>(abc));
+		std::thread* abc = new std::thread(std::bind(&TaskScheduler::doEventLoop, &self->envs[i]->taskScheduler(), nullptr));
+		self->sessionThreads.push_back(boost::shared_ptr<std::thread>(abc));
 	}
 }
 
@@ -501,7 +503,7 @@ void RTSPCubemapSourceClient::networkLoop()
 
 void RTSPCubemapSourceClient::connect()
 {
-    networkThread = boost::thread(boost::bind(&RTSPCubemapSourceClient::networkLoop, this));
+    networkThread = std::thread(std::bind(&RTSPCubemapSourceClient::networkLoop, this));
 }
 
 RTSPCubemapSourceClient* RTSPCubemapSourceClient::create(char const* rtspURL,

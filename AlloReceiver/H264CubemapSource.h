@@ -52,15 +52,15 @@ private:
     void sinkOnDecodedFrame       (H264NALUSink* sink, u_int8_t type, size_t size);
     void sinkOnColorConvertedFrame(H264NALUSink* sink, u_int8_t type, size_t size);
   
-    boost::mutex                              frameMapMutex;
-    boost::condition_variable                 frameMapCondition;
+    std::mutex                              frameMapMutex;
+    std::condition_variable                 frameMapCondition;
     std::map<int, std::vector<AVFrame*> >     frameMap;
     std::vector<H264NALUSink*>                sinks;
     std::map<H264NALUSink*, int64_t>          sinksFaceMap;
     AVPixelFormat                             format;
     HeapAllocator                             heapAllocator;
-    boost::thread                             getNextCubemapThread;
-    boost::thread                             getNextFramesThread;
+    std::thread                             getNextCubemapThread;
+    std::thread                             getNextFramesThread;
     StereoCubemap*                            oldCubemap;
     int64_t                                   lastFrameSeqNum;
     bool                                      matchStereoPairs;

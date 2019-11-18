@@ -13,7 +13,7 @@ extern "C"
 }
 #include <MediaSink.hh>
 #include <MediaSession.hh>
-#include <boost/thread.hpp>
+#include <thread>
 
 #include "AlloReceiver.h"
 
@@ -102,9 +102,9 @@ private:
     void packageNALUsLoop();
 	void decodeFrameLoop();
     void convertFrameLoop();
-    boost::thread packageNALUsThread;
-    boost::thread decodeFrameThread;
-    boost::thread convertFrameThread;
+    std::thread packageNALUsThread;
+    std::thread decodeFrameThread;
+    std::thread convertFrameThread;
 
 	int counter;
 	long sumRelativePresentationTimeMicroSec;

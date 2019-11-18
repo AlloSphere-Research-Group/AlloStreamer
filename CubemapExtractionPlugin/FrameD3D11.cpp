@@ -17,7 +17,7 @@ static AVPixelFormat avPixel2DXGIFormat(DXGI_FORMAT format)
 
 FrameD3D11::FrameD3D11(boost::uint32_t width,
                                    boost::uint32_t height,
-								   boost::chrono::system_clock::time_point presentationTime,
+								   std::chrono::system_clock::time_point presentationTime,
 	                               Allocator& allocator,
 	                               ID3D11Texture2D* gpuTexturePtr,
 	                               ID3D11Texture2D* cpuTexturePtr,
@@ -67,7 +67,7 @@ FrameD3D11* FrameD3D11::create(ID3D11Texture2D* texturePtr,
 	void* addr = allocator.allocate(sizeof(FrameD3D11));
 	return new (addr) FrameD3D11(width,
 		                         height,
-							     boost::chrono::system_clock::now(),
+							     std::chrono::system_clock::now(),
 						         allocator,
 		                               gpuTexturePtr,
 		                               cpuTexturePtr,

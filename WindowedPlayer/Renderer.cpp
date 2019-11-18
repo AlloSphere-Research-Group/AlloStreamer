@@ -4,10 +4,10 @@ Renderer::Renderer(CubemapSource* cubemapSource)
     :
 	cubemapSource(cubemapSource), renderer(nullptr)
 {
-	std::function<StereoCubemap* (CubemapSource*, StereoCubemap*)> callback = boost::bind(&Renderer::onNextCubemap,
+    std::function<StereoCubemap* (CubemapSource*, StereoCubemap*)> callback = std::bind(&Renderer::onNextCubemap,
                                                                                           this,
-                                                                                          _1,
-                                                                                          _2);
+                                                                                          std::placeholders::_1,
+                                                                                          std::placeholders::_2);
 
 	for (int i = 0; i < 1; i++)
 	{
@@ -123,7 +123,7 @@ void Renderer::createTextures(StereoCubemap* cubemap)
 
 void Renderer::start()
 {
-	renderThread = boost::thread(boost::bind(&Renderer::renderLoop, this));
+    renderThread = std::thread(std::bind(&Renderer::renderLoop, this));
 
 	SDL_Event evt;
 	while (true)

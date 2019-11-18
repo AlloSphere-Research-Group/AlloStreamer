@@ -12,7 +12,7 @@
 #include <SDL.h>
 #undef main
 //#include <SDL_thread.h>
-#include <boost/thread.hpp>
+#include <thread>
 #include "AlloShared/concurrent_queue.h"
 #include "AlloReceiver/AlloReceiver.h"
 
@@ -45,7 +45,7 @@ private:
 	StereoCubemap* onNextCubemap(CubemapSource* source, StereoCubemap* cubemap);
 	void renderLoop();
 
-	boost::thread                    renderThread;
+	std::thread                    renderThread;
 	CubemapSource*                   cubemapSource;
 	concurrent_queue<StereoCubemap*> cubemapBuffer;
 	concurrent_queue<StereoCubemap*> cubemapPool;

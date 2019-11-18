@@ -3,7 +3,7 @@
 
 #include <SDL.h>
 #undef main
-#include <boost/thread.hpp>
+#include <thread>
 #include "AlloShared/ConcurrentQueue.hpp"
 #include "AlloReceiver/AlloReceiver.h"
 
@@ -27,7 +27,7 @@ private:
 	void renderLoop();
 	void createTextures(StereoCubemap* cubemap);
 
-	boost::thread                    renderThread;
+	std::thread                    renderThread;
 	CubemapSource*                   cubemapSource;
 	ConcurrentQueue<StereoCubemap*> cubemapBuffer;
 	ConcurrentQueue<StereoCubemap*> cubemapPool;

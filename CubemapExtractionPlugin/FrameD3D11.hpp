@@ -22,7 +22,7 @@ public:
 protected:
 	FrameD3D11(boost::uint32_t width,
                boost::uint32_t height,
-			   boost::chrono::system_clock::time_point presentationTime,
+			   std::chrono::system_clock::time_point presentationTime,
 			   Allocator& allocator,
 			   ID3D11Texture2D* gpuTexturePtr,
 			   ID3D11Texture2D* cpuTexturePtr,

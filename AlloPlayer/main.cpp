@@ -4,6 +4,8 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
 
+#include <iomanip>
+
 #include "Renderer.hpp"
 #include "AlloShared/StatsUtils.hpp"
 #include "AlloShared/to_human_readable_byte_count.hpp"
@@ -23,7 +25,7 @@ const unsigned int DEFAULT_SINK_BUFFER_SIZE = 2000000000;
 
 static Stats         stats;
 static Renderer      renderer;
-static auto          lastStatsTime    = boost::chrono::steady_clock::now();
+static auto          lastStatsTime    = std::chrono::steady_clock::now();
 static std::string   statsFormat      = AlloReceiver::formatStringMaker();
 static bool          noDisplay        = false;
 static std::string   url              = "";
@@ -90,17 +92,19 @@ void onDidConnect(RTSPCubemapSourceClient* client, CubemapSource* cubemapSource)
     H264CubemapSource* h264CubemapSource = dynamic_cast<H264CubemapSource*>(cubemapSource);
     if (h264CubemapSource)
     {
-        h264CubemapSource->setOnReceivedNALU           (boost::bind(&onReceivedNALU,               _1, _2, _3, _4));
-        h264CubemapSource->setOnReceivedFrame          (boost::bind(&onReceivedFrame,              _1, _2, _3, _4));
-        h264CubemapSource->setOnDecodedFrame           (boost::bind(&onDecodedFrame,               _1, _2, _3, _4));
-        h264CubemapSource->setOnColorConvertedFrame    (boost::bind(&onColorConvertedFrame,        _1, _2, _3, _4));
-        h264CubemapSource->setOnAddedFrameToCubemap    (boost::bind(&onAddedFrameToCubemap,        _1, _2));
-        h264CubemapSource->setOnScheduledFrameInCubemap(boost::bind(&setOnScheduledFrameInCubemap, _1, _2));
+        using namespace std::placeholders;
+        h264CubemapSource->setOnReceivedNALU           (std::bind(&onReceivedNALU,               _1, _2, _3, _4));
+        h264CubemapSource->setOnReceivedFrame          (std::bind(&onReceivedFrame,              _1, _2, _3, _4));
+        h264CubemapSource->setOnDecodedFrame           (std::bind(&onDecodedFrame,               _1, _2, _3, _4));
+        h264CubemapSource->setOnColorConvertedFrame    (std::bind(&onColorConvertedFrame,        _1, _2, _3, _4));
+        h264CubemapSource->setOnAddedFrameToCubemap    (std::bind(&onAddedFrameToCubemap,        _1, _2));
+        h264CubemapSource->setOnScheduledFrameInCubemap(std::bind(&setOnScheduledFrameInCubemap, _1, _2));
     }
     
     if (noDisplay)
     {
-        cubemapSource->setOnNextCubemap(boost::bind(&onNextCubemap, _1, _2));
+        using namespace std::placeholders;
+        cubemapSource->setOnNextCubemap(std::bind(&onNextCubemap, _1, _2));
     }
     else
     {
@@ -281,8 +285,8 @@ int main(int argc, char* argv[])
             {},
             [](const std::vector<std::string>& values)
             {
-                boost::chrono::steady_clock::time_point now = boost::chrono::steady_clock::now();
-                std::cout << stats.summary(boost::chrono::duration_cast<boost::chrono::microseconds>(now - lastStatsTime),
+                std::chrono::steady_clock::time_point now = std::chrono::steady_clock::now();
+                std::cout << stats.summary(std::chrono::duration_cast<std::chrono::microseconds>(now - lastStatsTime),
                                            AlloReceiver::statValsMaker,
                                            AlloReceiver::postProcessorMaker,
                                            statsFormat);
@@ -373,7 +377,9 @@ int main(int argc, char* argv[])
                                                                           robustSyncing,
                                                                           maxFrameMapSize,
                                                                           interfaceAddress.c_str());
-    rtspClient->setOnDidConnect(boost::bind(&onDidConnect, _1, _2));
+
+    using namespace std::placeholders;
+    rtspClient->setOnDidConnect(std::bind(&onDidConnect, _1, _2));
     rtspClient->connect();
     
     
@@ -383,13 +389,13 @@ int main(int argc, char* argv[])
         std::cout << "network only" << std::endl;
         while(true)
         {
-            boost::this_thread::yield();
+            std::this_thread::yield();
         }
     }
     else
     {
-        renderer.setOnDisplayedCubemapFace(boost::bind(&onDisplayedCubemapFace, _1, _2));
-        renderer.setOnDisplayedFrame(boost::bind(&onDisplayedFrame, _1));
+        renderer.setOnDisplayedCubemapFace(std::bind(&onDisplayedCubemapFace, _1, _2));
+        renderer.setOnDisplayedFrame(std::bind(&onDisplayedFrame, _1));
         renderer.start(); // does not return
     }
 }

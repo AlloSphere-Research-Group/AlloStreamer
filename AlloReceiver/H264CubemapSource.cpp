@@ -1,5 +1,6 @@
 #include <vector>
 #include <unordered_map>
+#include <functional>
 #include <boost/accumulators/accumulators.hpp>
 #include <boost/accumulators/statistics/median.hpp>
 extern "C"
@@ -59,7 +60,7 @@ void H264CubemapSource::getNextFramesLoop()
             
             if (frames[i])
             {
-                boost::mutex::scoped_lock lock(frameMapMutex);
+                std::unique_lock<std::mutex> lock(frameMapMutex);
                 
                 int64_t key;
                 if (robustSyncing)
@@ -109,7 +110,7 @@ void H264CubemapSource::getNextFramesLoop()
 void H264CubemapSource::getNextCubemapLoop()
 {
     int64_t lastPTS = 0;
-    boost::chrono::system_clock::time_point lastDisplayTime(boost::chrono::microseconds(0));
+    std::chrono::system_clock::time_point lastDisplayTime(std::chrono::microseconds(0));
     
     while (true)
     {
@@ -118,7 +119,7 @@ void H264CubemapSource::getNextCubemapLoop()
         // Get frames with the oldest frame seq # and remove the associated bucket
         std::vector<AVFrame*> frames;
         {
-            boost::mutex::scoped_lock lock(frameMapMutex);
+            std::unique_lock<std::mutex> lock(frameMapMutex);
             
             if (frameMap.size() < maxFrameMapSize)
             {
@@ -158,7 +159,7 @@ void H264CubemapSource::getNextCubemapLoop()
                     Frame* content = Frame::create(width,
                                                    height,
                                                    format,
-                                                   boost::chrono::system_clock::time_point(),
+                                                   std::chrono::system_clock::time_point(),
                                                    heapAllocator);
                     
                     CubemapFace* face = CubemapFace::create(content,
@@ -261,14 +262,14 @@ void H264CubemapSource::getNextCubemapLoop()
             
             if (lastDisplayTime.time_since_epoch().count() == 0)
             {
-                lastDisplayTime = boost::chrono::system_clock::now();
-                lastDisplayTime += boost::chrono::seconds(5);
+                lastDisplayTime = std::chrono::system_clock::now();
+                lastDisplayTime += std::chrono::seconds(5);
             }
             uint64_t ptsDiff = pts - lastPTS;
-            lastDisplayTime += boost::chrono::microseconds(ptsDiff);
+            lastDisplayTime += std::chrono::microseconds(ptsDiff);
             lastPTS = pts;
             
-            boost::chrono::milliseconds sleepDuration = boost::chrono::duration_cast<boost::chrono::milliseconds>(lastDisplayTime - boost::chrono::system_clock::now());
+            std::chrono::milliseconds sleepDuration = std::chrono::duration_cast<std::chrono::milliseconds>(lastDisplayTime - std::chrono::system_clock::now());
             
             // Wait until frame should be displayed
             //boost::this_thread::sleep_for(sleepDuration);
@@ -278,6 +279,7 @@ void H264CubemapSource::getNextCubemapLoop()
 		}
     }
 }
+
 
 H264CubemapSource::H264CubemapSource(std::vector<H264NALUSink*>& sinks,
                                      AVPixelFormat               format,
@@ -291,16 +293,17 @@ H264CubemapSource::H264CubemapSource(std::vector<H264NALUSink*>& sinks,
     int i = 0;
     for (H264NALUSink* sink : sinks)
     {
-        sink->setOnReceivedNALU       (boost::bind(&H264CubemapSource::sinkOnReceivedNALU,        this, _1, _2, _3));
-        sink->setOnReceivedFrame      (boost::bind(&H264CubemapSource::sinkOnReceivedFrame,       this, _1, _2, _3));
-        sink->setOnDecodedFrame       (boost::bind(&H264CubemapSource::sinkOnDecodedFrame,        this, _1, _2, _3));
-        sink->setOnColorConvertedFrame(boost::bind(&H264CubemapSource::sinkOnColorConvertedFrame, this, _1, _2, _3));
+      using namespace std::placeholders;
+        sink->setOnReceivedNALU       (std::bind(&H264CubemapSource::sinkOnReceivedNALU,        this, _1, _2, _3));
+        sink->setOnReceivedFrame      (std::bind(&H264CubemapSource::sinkOnReceivedFrame,       this, _1, _2, _3));
+        sink->setOnDecodedFrame       (std::bind(&H264CubemapSource::sinkOnDecodedFrame,        this, _1, _2, _3));
+        sink->setOnColorConvertedFrame(std::bind(&H264CubemapSource::sinkOnColorConvertedFrame, this, _1, _2, _3));
         
         sinksFaceMap[sink] = i;
         i++;
     }
-    getNextFramesThread  = boost::thread(boost::bind(&H264CubemapSource::getNextFramesLoop,  this));
-    getNextCubemapThread = boost::thread(boost::bind(&H264CubemapSource::getNextCubemapLoop, this));
+    getNextFramesThread  = std::thread(std::bind(&H264CubemapSource::getNextFramesLoop,  this));
+    getNextCubemapThread = std::thread(std::bind(&H264CubemapSource::getNextCubemapLoop, this));
 }
 
 void H264CubemapSource::sinkOnReceivedNALU(H264NALUSink* sink, u_int8_t type, size_t size)

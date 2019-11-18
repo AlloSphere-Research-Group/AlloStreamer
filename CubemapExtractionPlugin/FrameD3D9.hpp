@@ -27,7 +27,7 @@ protected:
 	CubemapFaceD3D9(boost::uint32_t width,
 		            boost::uint32_t height,
 		            int index,
-		            boost::chrono::system_clock::time_point presentationTime,
+		            std::chrono::system_clock::time_point presentationTime,
 		            Allocator& allocator,
 		            IDirect3DTexture9* texturePtr,
 		            IDirect3DSurface9* gpuSurfacePtr,

@@ -1,7 +1,9 @@
-#include <boost/chrono/system_clocks.hpp>
-#include <boost/bind.hpp>
+#include <chrono>
+#include <thread>
+#include <functional>
+#include <sstream>
+#include <iostream>
 #include <boost/ref.hpp>
-#include <boost/thread/thread.hpp>
 
 #include "format.hpp"
 #include "to_human_readable_byte_count.hpp"
@@ -17,7 +19,7 @@ Stats::Stats()
 }
 
 std::map<std::string, double> Stats::query(std::initializer_list<StatVal>                         statVals,
-                                           boost::function<void (std::map<std::string, double>&)> postCalculator)
+                                           std::function<void (std::map<std::string, double>&)> postCalculator)
 {
 	std::list<StatVal> statValList(statVals.begin(), statVals.end());
 	return query(statValList,
@@ -25,7 +27,7 @@ std::map<std::string, double> Stats::query(std::initializer_list<StatVal>       
 }
 
 std::map<std::string, double> Stats::query(std::list<StatVal>                         statVals,
-	                                       boost::function<void(std::map<std::string, double>&)> postCalculator)
+                                           std::function<void(std::map<std::string, double>&)> postCalculator)
 {
 	// Create list of makers so that they are active for the time of stats processing
 	std::list<StatVal::FilterAccExtractorMaker> faeMakers;
@@ -65,12 +67,12 @@ std::map<std::string, double> Stats::query(std::list<StatVal>                   
 	return results;
 }
 
-std::string Stats::formatDuration(boost::chrono::microseconds duration)
+std::string Stats::formatDuration(std::chrono::microseconds duration)
 {
     std::stringstream result;
-	boost::chrono::microseconds remainder(duration);
+	std::chrono::microseconds remainder(duration);
 
-	boost::chrono::hours h = boost::chrono::duration_cast<boost::chrono::hours>(remainder);
+	std::chrono::hours h = std::chrono::duration_cast<std::chrono::hours>(remainder);
 
     if (h.count() > 0)
     {
@@ -78,28 +80,28 @@ std::string Stats::formatDuration(boost::chrono::microseconds duration)
         remainder -= h;
     }
 
-	boost::chrono::minutes m = boost::chrono::duration_cast<boost::chrono::minutes>(remainder);
+	std::chrono::minutes m = std::chrono::duration_cast<std::chrono::minutes>(remainder);
     if (m.count() > 0)
     {
         result << m.count() << "m ";
         remainder -= m;
     }
 
-	boost::chrono::seconds s = boost::chrono::duration_cast<boost::chrono::seconds>(remainder);
+	std::chrono::seconds s = std::chrono::duration_cast<std::chrono::seconds>(remainder);
     if (s.count() > 0)
     {
         result << s.count() << "s ";
         remainder -= s;
     }
 
-	boost::chrono::milliseconds ms = boost::chrono::duration_cast<boost::chrono::milliseconds>(remainder);
+	std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(remainder);
     if (ms.count() > 0)
     {
         result << ms.count() << "ms ";
         remainder -= ms;
     }
 
-	boost::chrono::microseconds us = boost::chrono::duration_cast<boost::chrono::microseconds>(remainder);
+	std::chrono::microseconds us = std::chrono::duration_cast<std::chrono::microseconds>(remainder);
     if (us.count() > 0)
     {
         result << us.count() << "µs ";
@@ -114,19 +116,19 @@ std::string Stats::formatDuration(boost::chrono::microseconds duration)
 
 void Stats::store(const boost::any& datum)
 {
-    boost::mutex::scoped_lock lock(mutex);
+    std::unique_lock<std::mutex> lock(mutex);
     activeStorage->push_back(TimeValueDatum(datum));
 }
 
 // ###### UTILITY ######
 
-std::string Stats::summary(boost::chrono::microseconds window,
+std::string Stats::summary(std::chrono::microseconds window,
 	                       StatValsMaker               statValsMaker,
 	                       PostProcessorMaker          postProcessorMaker,
 	                       const std::string&          format)
 {
     {
-        boost::mutex::scoped_lock lock(mutex);
+        std::unique_lock<std::mutex> lock(mutex);
         
         // swap storages so that events can still be stored while we calculate the statistics
         activeStorage      = (std::list<TimeValueDatum>*)((uintptr_t)activeStorage ^ (uintptr_t)processingStorage);
@@ -134,7 +136,7 @@ std::string Stats::summary(boost::chrono::microseconds window,
         activeStorage      = (std::list<TimeValueDatum>*)((uintptr_t)activeStorage ^ (uintptr_t)processingStorage);
     }
     
-	boost::chrono::steady_clock::time_point now = boost::chrono::steady_clock::now();
+	std::chrono::steady_clock::time_point now = std::chrono::steady_clock::now();
 	
 	auto results = query(statValsMaker(window, now),
 		                 postProcessorMaker(window, now));
@@ -159,17 +161,17 @@ std::string Stats::summary(boost::chrono::microseconds window,
 	return summary;
 }
 
-void Stats::autoSummaryLoop(boost::chrono::microseconds frequency,
+void Stats::autoSummaryLoop(std::chrono::microseconds frequency,
 							StatValsMaker               statValsMaker,
 							PostProcessorMaker          postProcessorMaker,
 							const std::string&          format)
 {
-    auto summaryTime = boost::chrono::system_clock::now();
+    auto summaryTime = std::chrono::system_clock::now();
 
     while (true)
     {
         summaryTime += frequency;
-        boost::this_thread::sleep_until(summaryTime);
+        std::this_thread::sleep_until(summaryTime);
 
         if (stopAutoSummary_)
         {
@@ -179,13 +181,13 @@ void Stats::autoSummaryLoop(boost::chrono::microseconds frequency,
     }
 }
 
-void Stats::autoSummary(boost::chrono::microseconds frequency,
+void Stats::autoSummary(std::chrono::microseconds frequency,
 						StatValsMaker               statValsMaker,
 						PostProcessorMaker          postProcessorMaker,
 						const std::string&          format)
 {
     stopAutoSummary_ = false;
-	autoSummaryThread = boost::thread(boost::bind(&Stats::autoSummaryLoop, this, frequency, statValsMaker, postProcessorMaker, format));
+    autoSummaryThread = std::thread(std::bind(&Stats::autoSummaryLoop, this, frequency, statValsMaker, postProcessorMaker, format));
 }
 
 void Stats::stopAutoSummary()

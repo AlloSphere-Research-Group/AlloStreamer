@@ -22,6 +22,8 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 #define UINT64_C(c) (c ## ULL)
 #endif
 
+#include <thread>
+
 #include <liveMedia.hh>
 #define EventTime server_EventTime
 #include <BasicUsageEnvironment.hh>
@@ -57,7 +59,7 @@ void eventLoop();
 void startRTSP(){
 //    pthread_t thread;
 //    return pthread_create(&thread,NULL,eventLoop, NULL);
-    boost::thread thread1(eventLoop);
+    std::thread thread1(eventLoop);
 }
 
 void eventLoop() {

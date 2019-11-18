@@ -17,7 +17,7 @@
         FrameOpenGL(boost::uint32_t                         width,
                     boost::uint32_t                         height,
                     AVPixelFormat                           format,
-                    boost::chrono::system_clock::time_point presentationTime,
+                    std::chrono::system_clock::time_point presentationTime,
                     GLuint                                  gpuTextureID,
                     Allocator&                              allocator);
         

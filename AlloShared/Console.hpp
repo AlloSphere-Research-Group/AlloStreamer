@@ -1,7 +1,7 @@
 #pragma once
 
 #include <iostream>
-#include <boost/thread.hpp>
+#include <thread>
 
 #include "CommandHandler.hpp"
 
@@ -30,7 +30,7 @@ private:
     static char** completion(const char * text , int start, int end);
     
     void runLoop();
-    boost::thread runThread;
+    std::thread runThread;
     ReadlineStreambuf readlineStreambuf;
     
     static std::vector<CommandHandler::Command> const* currentCommands;

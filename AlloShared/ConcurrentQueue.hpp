@@ -1,16 +1,16 @@
 #pragma once
 
 #include <queue>
-#include <boost/thread/mutex.hpp>
-#include <boost/thread/condition_variable.hpp>
+#include <mutex>
+#include <condition_variable>
 
 template<typename Data>
 class ConcurrentQueue
 {
 private:
 	std::queue<Data> queue;
-	mutable boost::mutex mutex;
-	boost::condition_variable conditionVariable;
+	mutable std::mutex mutex;
+    std::condition_variable conditionVariable;
 	bool isClosed_;
 
 public:
@@ -21,7 +21,7 @@ public:
 
 	void push(Data const& data)
 	{
-		boost::mutex::scoped_lock lock(mutex);
+        std::unique_lock<std::mutex> lock(mutex);
 		queue.push(data);
 		lock.unlock();
 		conditionVariable.notify_one();
@@ -29,13 +29,13 @@ public:
 
 	bool empty() const
 	{
-		boost::mutex::scoped_lock lock(mutex);
+        std::unique_lock<std::mutex> lock(mutex);
 		return queue.empty();
 	}
 
 	bool tryPop(Data& popped_value)
 	{
-		boost::mutex::scoped_lock lock(mutex);
+        std::unique_lock<std::mutex> lock(mutex);
 		if (isClosed_ || queue.empty())
 		{
 			return false;
@@ -48,7 +48,7 @@ public:
 
 	bool waitAndPop(Data& popped_value)
 	{
-		boost::mutex::scoped_lock lock(mutex);
+        std::unique_lock<std::mutex> lock(mutex);
 		while (!isClosed_ && queue.empty())
 		{
 			conditionVariable.wait(lock);
@@ -66,7 +66,7 @@ public:
 
 	void close()
 	{
-		boost::mutex::scoped_lock lock(mutex);
+        std::unique_lock<std::mutex> lock(mutex);
         std::queue<Data> emptyQueue;
         queue.swap(emptyQueue); // clears queue
 		isClosed_ = true;
@@ -75,7 +75,7 @@ public:
 
 	size_t size()
 	{
-		boost::mutex::scoped_lock lock(mutex);
+        std::unique_lock<std::mutex> lock(mutex);
 		return queue.size();
 	}
 

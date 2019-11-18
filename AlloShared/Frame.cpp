@@ -3,7 +3,7 @@
 Frame::Frame(boost::uint32_t                         width,
              boost::uint32_t                         height,
              AVPixelFormat                           format,
-             boost::chrono::system_clock::time_point presentationTime,
+             std::chrono::system_clock::time_point presentationTime,
              Allocator&                              allocator)
     :
     allocator(allocator), width(width), height(height), format(format),
@@ -32,7 +32,7 @@ AVPixelFormat Frame::getFormat()
     return format;
 }
 
-boost::chrono::system_clock::time_point Frame::getPresentationTime()
+std::chrono::system_clock::time_point Frame::getPresentationTime()
 {
     return presentationTime;
 }
@@ -52,7 +52,7 @@ boost::interprocess::interprocess_mutex& Frame::getMutex()
     return mutex;
 }
 
-void Frame::setPresentationTime(boost::chrono::system_clock::time_point presentationTime)
+void Frame::setPresentationTime(std::chrono::system_clock::time_point presentationTime)
 {
     this->presentationTime = presentationTime;
 }
@@ -60,7 +60,7 @@ void Frame::setPresentationTime(boost::chrono::system_clock::time_point presenta
 Frame* Frame::create(boost::uint32_t                         width,
                      boost::uint32_t                         height,
                      AVPixelFormat                           format,
-                     boost::chrono::system_clock::time_point presentationTime,
+                     std::chrono::system_clock::time_point presentationTime,
                      Allocator&                              allocator)
 {
     void* addr = allocator.allocate(sizeof(Frame));

@@ -1,6 +1,7 @@
 #include <boost/interprocess/sync/scoped_lock.hpp>
+#include <boost/thread/thread_time.hpp>
 #include <fstream>
-#include <boost/thread.hpp>
+#include <thread>
 
 #include "Process.h"
 
@@ -55,7 +56,7 @@ bool Process::isAlive()
 
 		bool result;
 		{
-			boost::mutex::scoped_lock lock(isAliveMutex);
+            std::unique_lock<std::mutex> lock(isAliveMutex);
 			boost::interprocess::file_lock fileLock(lockfilePath.string().c_str());
 			result = !fileLock.try_lock();
 			if (!result)
@@ -87,11 +88,11 @@ void Process::waitForBirth()
 {
     while(!isAlive())
     {
-        boost::this_thread::sleep(boost::posix_time::milliseconds(100));
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
 }
 
-bool Process::timedJoin(const boost::chrono::microseconds& timeout)
+bool Process::timedJoin(const std::chrono::microseconds& timeout)
 {
 	if (!isSelf())
 	{
@@ -111,7 +112,7 @@ bool Process::timedJoin(const boost::chrono::microseconds& timeout)
 	}
 }
 
-bool Process::timedWaitForBirth(const boost::chrono::microseconds& timeout)
+bool Process::timedWaitForBirth(const std::chrono::microseconds& timeout)
 {
 	size_t sleepIntervals = ceil((double)timeout.count() / 100000);
 	size_t counter = 0;
@@ -121,7 +122,7 @@ bool Process::timedWaitForBirth(const boost::chrono::microseconds& timeout)
 		{
 			return false;
 		}
-		boost::this_thread::sleep(boost::posix_time::milliseconds(100));
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
 		counter++;
 	}
 	return true;

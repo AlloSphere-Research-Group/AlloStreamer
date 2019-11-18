@@ -1,12 +1,14 @@
 #pragma once
 
 #include <vector>
-#include <boost/chrono/duration.hpp>
+#include <chrono>
 #include <boost/accumulators/accumulators.hpp>
-#include <boost/thread/mutex.hpp>
-#include <boost/function.hpp>
+#include <mutex>
+#include <functional>
 #include <initializer_list>
-#include <boost/thread.hpp>
+#include <thread>
+#include <map>
+#include <list>
 #include <boost/any.hpp>
 
 class Stats
@@ -15,8 +17,8 @@ public:
     class TimeValueDatum
     {
     public:
-        TimeValueDatum(const boost::any& value) : time(boost::chrono::steady_clock::now()), value(value) {}
-		const boost::chrono::steady_clock::time_point time;
+        TimeValueDatum(const boost::any& value) : time(std::chrono::steady_clock::now()), value(value) {}
+		const std::chrono::steady_clock::time_point time;
 		const boost::any value;
     };
     
@@ -24,8 +26,8 @@ public:
     {
     public:
         template <typename Feature>
-        static StatVal makeStatVal(boost::function<bool (const TimeValueDatum&)>   filter,
-                                   boost::function<double (const TimeValueDatum&)> accessor,
+        static StatVal makeStatVal(std::function<bool (const TimeValueDatum&)>   filter,
+                                   std::function<double (const TimeValueDatum&)> accessor,
                                    const Feature&                                  accumulator,
                                    const std::string&                              name)
         {
@@ -56,8 +58,8 @@ public:
     private:
         friend class Stats;
         
-        typedef std::pair<boost::function<void (const Stats::TimeValueDatum&)>, boost::function<double ()> > FilterAccExtractor;
-        typedef boost::function<FilterAccExtractor ()> FilterAccExtractorMaker;
+        typedef std::pair<std::function<void (const Stats::TimeValueDatum&)>, std::function<double ()> > FilterAccExtractor;
+        typedef std::function<FilterAccExtractor ()> FilterAccExtractorMaker;
         
         StatVal(FilterAccExtractorMaker filterAccExtractorMaker,
                 const std::string& name)
@@ -76,17 +78,17 @@ public:
     
     // utility
 
-	typedef boost::function<void(std::map<std::string, double>&)> PostProcessor;
-	typedef boost::function<std::list<Stats::StatVal>(boost::chrono::microseconds,
-		                                              boost::chrono::steady_clock::time_point)> StatValsMaker;
-	typedef boost::function<PostProcessor(boost::chrono::microseconds,
-		                                  boost::chrono::steady_clock::time_point)> PostProcessorMaker;
+    typedef std::function<void(std::map<std::string, double>&)> PostProcessor;
+    typedef std::function<std::list<Stats::StatVal>(std::chrono::microseconds,
+		                                              std::chrono::steady_clock::time_point)> StatValsMaker;
+    typedef std::function<PostProcessor(std::chrono::microseconds,
+		                                  std::chrono::steady_clock::time_point)> PostProcessorMaker;
 
-	std::string summary(boost::chrono::microseconds window,
+	std::string summary(std::chrono::microseconds window,
 		                StatValsMaker               statValsMaker,
 		                PostProcessorMaker          postProcessorMaker,
 		                const std::string&          format);
-    void autoSummary(boost::chrono::microseconds frequency,
+    void autoSummary(std::chrono::microseconds frequency,
 					 StatValsMaker               statValsMaker,
 					 PostProcessorMaker          postProcessorMaker,
                      const std::string&          format);
@@ -100,17 +102,17 @@ private:
     std::list<TimeValueDatum> storage2;
     
     std::map<std::string, double> query(std::initializer_list<StatVal>                         statVals,
-                                        boost::function<void (std::map<std::string, double>&)> postCalculator);
+                                        std::function<void (std::map<std::string, double>&)> postCalculator);
 	std::map<std::string, double> query(std::list<StatVal>                                    statVals,
-									    boost::function<void(std::map<std::string, double>&)> postCalculator);
+                                        std::function<void(std::map<std::string, double>&)> postCalculator);
   
     
-    std::string formatDuration(boost::chrono::microseconds duration);
+    std::string formatDuration(std::chrono::microseconds duration);
     
-    boost::mutex mutex;
-    boost::thread autoSummaryThread;
+    std::mutex mutex;
+    std::thread autoSummaryThread;
 	bool stopAutoSummary_;
-    void autoSummaryLoop(boost::chrono::microseconds frequency,
+    void autoSummaryLoop(std::chrono::microseconds frequency,
 						 StatValsMaker               statValsMaker,
 						 PostProcessorMaker          postProcessorMaker,
 						 const std::string&          format);

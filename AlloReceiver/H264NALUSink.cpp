@@ -2,7 +2,7 @@
 
 #include <iostream>
 #include <map>
-#include <boost/thread.hpp>
+#include <thread>
 #include <GroupsockHelper.hh>
 
 #include "H264NALUSink.hpp"
@@ -117,9 +117,9 @@ H264NALUSink::H264NALUSink(UsageEnvironment& env,
 		abort();
 	}
 
-    //packageNALUsThread = boost::thread(boost::bind(&H264NALUSink::packageNALUsLoop, this));
-	decodeFrameThread  = boost::thread(boost::bind(&H264NALUSink::decodeFrameLoop,  this));
-    convertFrameThread = boost::thread(boost::bind(&H264NALUSink::convertFrameLoop, this));
+    //packageNALUsThread = std::thread(std::bind(&H264NALUSink::packageNALUsLoop, this));
+    decodeFrameThread  = std::thread(std::bind(&H264NALUSink::decodeFrameLoop,  this));
+    convertFrameThread = std::thread(std::bind(&H264NALUSink::convertFrameLoop, this));
 }
 
 void H264NALUSink::packageData(AVPacket* pkt, unsigned int frameSize, timeval presentationTime)

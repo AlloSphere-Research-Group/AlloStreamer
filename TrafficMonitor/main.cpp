@@ -32,7 +32,7 @@ public:
 
 		socket_.async_receive_from(
 			boost::asio::buffer(data_, max_length), sender_endpoint_,
-			boost::bind(&receiver::handle_receive_from, this,
+            boost::bind(&receiver::handle_receive_from, this,
 			boost::asio::placeholders::error,
 			boost::asio::placeholders::bytes_transferred));
 	}
@@ -46,7 +46,7 @@ public:
 
 			socket_.async_receive_from(
 				boost::asio::buffer(data_, max_length), sender_endpoint_,
-				boost::bind(&receiver::handle_receive_from, this,
+                boost::bind(&receiver::handle_receive_from, this,
 				boost::asio::placeholders::error,
 				boost::asio::placeholders::bytes_transferred));
 		}
@@ -100,19 +100,19 @@ int main(int argc, char* argv[])
 				                         i));
 		}
 
-		stats.autoSummary(boost::chrono::seconds(statsInterval),
+		stats.autoSummary(std::chrono::seconds(statsInterval),
 			              AlloReceiver::statValsMaker,
 						  AlloReceiver::postProcessorMaker,
 						  AlloReceiver::formatStringMaker());
 
-		std::vector<boost::thread> io_threads;
+		std::vector<std::thread> io_threads;
 
 		for (boost::asio::io_service* io_service : io_services)
 		{
-			io_threads.push_back(boost::thread(boost::bind(&boost::asio::io_service::run, io_service)));
+            io_threads.push_back(std::thread(boost::bind(&boost::asio::io_service::run, io_service)));
 		}
 
-		for (boost::thread& io_thread : io_threads)
+		for (std::thread& io_thread : io_threads)
 		{
 			io_thread.join();
 		}

@@ -3,6 +3,7 @@
 #include <boost/filesystem.hpp>
 #include <boost/program_options.hpp>
 #include <boost/ref.hpp>
+#include <boost/thread/barrier.hpp>
 
 #include "AlloReceiver/RTSPCubemapSourceClient.hpp"
 #include "AlloShared/StatsUtils.hpp"
@@ -64,15 +65,16 @@ void onDidConnect(RTSPCubemapSourceClient* client, CubemapSource* cubemapSource)
 {
     if (typeid(cubemapSource) == typeid(H264CubemapSource))
     {
+        using namespace std::placeholders;
         H264CubemapSource* h264CubemapSource = (H264CubemapSource*)cubemapSource;
         
-        h264CubemapSource->setOnReceivedNALU       (boost::bind(&onReceivedNALU,        _1, _2, _3, _4));
-        h264CubemapSource->setOnReceivedFrame      (boost::bind(&onReceivedFrame,       _1, _2, _3, _4));
-        h264CubemapSource->setOnDecodedFrame       (boost::bind(&onDecodedFrame,        _1, _2, _3, _4));
-        h264CubemapSource->setOnColorConvertedFrame(boost::bind(&onColorConvertedFrame, _1, _2, _3, _4));
+        h264CubemapSource->setOnReceivedNALU       (std::bind(&onReceivedNALU,        _1, _2, _3, _4));
+        h264CubemapSource->setOnReceivedFrame      (std::bind(&onReceivedFrame,       _1, _2, _3, _4));
+        h264CubemapSource->setOnDecodedFrame       (std::bind(&onDecodedFrame,        _1, _2, _3, _4));
+        h264CubemapSource->setOnColorConvertedFrame(std::bind(&onColorConvertedFrame, _1, _2, _3, _4));
     }
     
-    stats.autoSummary(boost::chrono::seconds(10),
+    stats.autoSummary(std::chrono::seconds(10),
 					  AlloReceiver::statValsMaker,
 					  AlloReceiver::postProcessorMaker,
 					  AlloReceiver::formatStringMaker());
@@ -128,16 +130,17 @@ int main(int argc, char* argv[])
 
 	std::cout << "Buffer size " << to_human_readable_byte_count(bufferSize, false, false) << std::endl;
 
+    using namespace std::placeholders;
 	rtspClient = RTSPCubemapSourceClient::create(vm["url"].as<std::string>().c_str(), bufferSize, AV_PIX_FMT_RGBA, false, false, 5, interfaceAddress);
-    std::function<void (RTSPCubemapSourceClient*, CubemapSource*)> callback(boost::bind(&onDidConnect, _1, _2));
+    std::function<void (RTSPCubemapSourceClient*, CubemapSource*)> callback(std::bind(&onDidConnect, _1, _2));
     rtspClient->setOnDidConnect(callback);
     rtspClient->connect();
     
     barrier.wait();
     
     Renderer renderer(cubemapSource);
-	renderer.setOnDisplayedCubemapFace(boost::bind(&onDisplayedCubemapFace, _1, _2));
-	renderer.setOnDisplayedFrame(boost::bind(&onDisplayedFrame, _1));
+	renderer.setOnDisplayedCubemapFace(std::bind(&onDisplayedCubemapFace, _1, _2));
+	renderer.setOnDisplayedFrame(std::bind(&onDisplayedFrame, _1));
     renderer.start(); // Returns when window is closed
     
     CubemapSource::destroy(cubemapSource);

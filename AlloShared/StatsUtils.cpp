@@ -8,8 +8,8 @@
 Stats::StatVal StatsUtils::nalusBitSum  (const std::string&                      name,
                                          int                                     face,
                                          NALU::Status                            status,
-                                         boost::chrono::microseconds             window,
-                                         boost::chrono::steady_clock::time_point now)
+                                         std::chrono::microseconds             window,
+                                         std::chrono::steady_clock::time_point now)
 {
 	return Stats::StatVal::makeStatVal(andFilter(
     {
@@ -30,8 +30,8 @@ Stats::StatVal StatsUtils::nalusBitSum  (const std::string&                     
 Stats::StatVal StatsUtils::nalusCount   (const std::string&                      name,
                                          int                                     face,
                                          NALU::Status                            status,
-                                         boost::chrono::microseconds             window,
-                                         boost::chrono::steady_clock::time_point now)
+                                         std::chrono::microseconds             window,
+                                         std::chrono::steady_clock::time_point now)
 {
 	return Stats::StatVal::makeStatVal(andFilter(
     {
@@ -50,8 +50,8 @@ Stats::StatVal StatsUtils::nalusCount   (const std::string&                     
 }
 
 Stats::StatVal StatsUtils::cubemapsCount(const std::string&                      name,
-                                         boost::chrono::microseconds             window,
-                                         boost::chrono::steady_clock::time_point now)
+                                         std::chrono::microseconds             window,
+                                         std::chrono::steady_clock::time_point now)
 {
 	return Stats::StatVal::makeStatVal(andFilter(
     {
@@ -69,8 +69,8 @@ Stats::StatVal StatsUtils::cubemapsCount(const std::string&                     
 
 Stats::StatVal StatsUtils::facesCount   (const std::string&                      name,
                                          int                                     face,
-                                         boost::chrono::microseconds             window,
-                                         boost::chrono::steady_clock::time_point now)
+                                         std::chrono::microseconds             window,
+                                         std::chrono::steady_clock::time_point now)
 {
 	return Stats::StatVal::makeStatVal(andFilter(
     {
@@ -97,8 +97,8 @@ Stats::StatVal StatsUtils::facesCount   (const std::string&                     
 
 // ###### FILTERS ######
 
-boost::function<bool(Stats::TimeValueDatum)> StatsUtils::timeFilter(boost::chrono::microseconds window,
-	boost::chrono::steady_clock::time_point now)
+std::function<bool(Stats::TimeValueDatum)> StatsUtils::timeFilter(std::chrono::microseconds window,
+	std::chrono::steady_clock::time_point now)
 {
 	return [window, now](Stats::TimeValueDatum datum)
 	{
@@ -106,7 +106,7 @@ boost::function<bool(Stats::TimeValueDatum)> StatsUtils::timeFilter(boost::chron
 	};
 }
 
-boost::function<bool(Stats::TimeValueDatum)> StatsUtils::typeFilter(const std::type_info& type)
+std::function<bool(Stats::TimeValueDatum)> StatsUtils::typeFilter(const std::type_info& type)
 {
 	return [&type](Stats::TimeValueDatum datum)
 	{
@@ -114,7 +114,7 @@ boost::function<bool(Stats::TimeValueDatum)> StatsUtils::typeFilter(const std::t
 	};
 }
 
-boost::function<bool(Stats::TimeValueDatum)> StatsUtils::naluFaceFilter(int face)
+std::function<bool(Stats::TimeValueDatum)> StatsUtils::naluFaceFilter(int face)
 {
 	return [face](Stats::TimeValueDatum datum)
 	{
@@ -122,7 +122,7 @@ boost::function<bool(Stats::TimeValueDatum)> StatsUtils::naluFaceFilter(int face
 	};
 }
 
-boost::function<bool(Stats::TimeValueDatum)> StatsUtils::naluStatusFilter(NALU::Status status)
+std::function<bool(Stats::TimeValueDatum)> StatsUtils::naluStatusFilter(NALU::Status status)
 {
 	return [status](Stats::TimeValueDatum datum)
 	{
@@ -130,10 +130,10 @@ boost::function<bool(Stats::TimeValueDatum)> StatsUtils::naluStatusFilter(NALU::
 	};
 }
 
-boost::function<bool(Stats::TimeValueDatum)> StatsUtils::andFilter(std::initializer_list<boost::function<bool(Stats::TimeValueDatum)> > filtersList)
+std::function<bool(Stats::TimeValueDatum)> StatsUtils::andFilter(std::initializer_list<std::function<bool(Stats::TimeValueDatum)> > filtersList)
 {
 	// Make filters permanent
-	std::vector<boost::function<bool(Stats::TimeValueDatum)> > filters(filtersList.size());
+    std::vector<std::function<bool(Stats::TimeValueDatum)> > filters(filtersList.size());
 	std::copy(filtersList.begin(), filtersList.end(), filters.begin());
 
 	return [filters](Stats::TimeValueDatum datum)

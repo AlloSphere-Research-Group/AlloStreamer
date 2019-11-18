@@ -3,7 +3,7 @@
 #include <BasicUsageEnvironment.hh>
 #include <GroupsockHelper.hh>
 #include <liveMedia.hh>
-#include <boost/thread.hpp>
+#include <thread>
 
 #include "AlloReceiver.h"
 
@@ -70,8 +70,8 @@ protected:
     
 private:
 	std::vector<BasicUsageEnvironment*> envs;
-	std::vector<boost::shared_ptr<boost::thread>> sessionThreads;
-    boost::thread networkThread;
+	std::vector<boost::shared_ptr<std::thread>> sessionThreads;
+    std::thread networkThread;
 	std::vector<MediaSubsession*> subsessions;
     MediaSubsession* subsession;
     unsigned int sinkBufferSize;

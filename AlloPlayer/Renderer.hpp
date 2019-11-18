@@ -1,7 +1,7 @@
 #pragma once
 
 #include <alloutil/al_OmniApp.hpp>
-#include <boost/thread.hpp>
+#include <thread>
 #include "AlloShared/ConcurrentQueue.hpp"
 #include "AlloReceiver/AlloReceiver.h"
 
@@ -60,7 +60,7 @@ private:
     std::vector<YUV420PTexture>      textures;
     al_sec                           now;
     al::ShaderProgram                yuvGammaShader;
-    boost::mutex                     uniformsMutex;
+    std::mutex                     uniformsMutex;
     float                            gammaMin;
     float                            gammaMax;
     float                            gammaPow;

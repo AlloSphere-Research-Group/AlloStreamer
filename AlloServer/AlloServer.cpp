@@ -113,10 +113,12 @@ void addFaceSubstreams0(void*)
 			H264NALUSource* source = H264NALUSource::createNew(*env,
 				state->content,
 				avgBitRate,
-				robustSyncing);
+                robustSyncing);
 
-			source->setOnSentNALU    (boost::bind(&onSentNALU,     _1, _2, _3, j, i));
-			source->setOnEncodedFrame(boost::bind(&onEncodedFrame, _1, j, i));
+            using namespace std::placeholders;
+
+			source->setOnSentNALU    (std::bind(&onSentNALU,     _1, _2, _3, j, i));
+			source->setOnEncodedFrame(std::bind(&onEncodedFrame, _1, j, i));
 
 			DiscreteFlowControlFilter* flowControlFilter = DiscreteFlowControlFilter::createNew(*env,
 				                                                                                source,
@@ -150,7 +152,7 @@ void removeFaceSubstreams0(void*)
         faceStreams.clear();
         cubemapSMS->deleteAllSubsessions();
     }
-    boost::thread(boost::bind(&boost::barrier::wait, &stopStreamingBarrier));
+    std::thread(std::bind(&boost::barrier::wait, &stopStreamingBarrier));
 }
 
 void addBinocularsSubstream0(void*)
@@ -195,7 +197,7 @@ void removeBinocularsSubstream0(void*)
         binocularsSMS->deleteAllSubsessions();
         delete binocularsStream;
     }
-    boost::thread(boost::bind(&boost::barrier::wait, &stopStreamingBarrier));
+    std::thread(std::bind(&boost::barrier::wait, &stopStreamingBarrier));
 }
 
 void networkLoop()
@@ -394,7 +396,7 @@ int main(int argc, char* argv[])
     av_log_set_level(AV_LOG_WARNING);
     avcodec_register_all();
     setupRTSP();
-    boost::thread networkThread = boost::thread(&networkLoop);
+    std::thread networkThread = std::thread(&networkLoop);
 
 	
 
@@ -407,7 +409,7 @@ int main(int argc, char* argv[])
         unityProcess.waitForBirth();
         std::cout << "Connected to Unity :)" << std::endl;
         startStreaming();
-		stats.autoSummary(boost::chrono::seconds(statsInterval),
+		stats.autoSummary(std::chrono::seconds(statsInterval),
 			              AlloReceiver::statValsMaker,
 						  AlloReceiver::postProcessorMaker,
 						  AlloReceiver::formatStringMaker());

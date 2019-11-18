@@ -2,6 +2,7 @@
 #include <readline/readline.h>
 #include <readline/history.h>
 #include <regex>
+#include <functional>
 #include <boost/algorithm/string/join.hpp>
 
 #include "Console.hpp"
@@ -74,7 +75,7 @@ void Console::start()
 {
     //std::cout.rdbuf(&readlineStreambuf);
     
-    runThread = boost::thread(boost::bind(&Console::runLoop, this));
+    runThread = std::thread(std::bind(&Console::runLoop, this));
 }
 
 Console::ReadlineStreambuf::ReadlineStreambuf(std::streambuf& outStream)

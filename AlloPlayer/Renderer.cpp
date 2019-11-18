@@ -82,7 +82,7 @@ bool Renderer::onFrame()
 {
     now = al::MainLoop::now();
     
-    boost::mutex::scoped_lock(uniformsMutex);
+    std::unique_lock<std::mutex> lk(uniformsMutex);
     
     StereoCubemap* cubemap;
     if (cubemapBuffer.tryPop(cubemap))
@@ -316,55 +316,56 @@ void Renderer::setOnDisplayedCubemapFace(const std::function<void (Renderer*, in
 
 void Renderer::setGammaMin(float gammaMin)
 {
-    boost::mutex::scoped_lock(uniformsMutex);
+    std::unique_lock<std::mutex> lk(uniformsMutex);
     this->gammaMin = gammaMin;
 }
 
 void Renderer::setGammaMax(float gammaMax)
 {
-    boost::mutex::scoped_lock(uniformsMutex);
+    std::unique_lock<std::mutex> lk(uniformsMutex);
     this->gammaMax = gammaMax;
 }
 
 void Renderer::setGammaPow(float gammaPow)
 {
-    boost::mutex::scoped_lock(uniformsMutex);
+    std::unique_lock<std::mutex> lk(uniformsMutex);
     this->gammaPow = gammaPow;
 }
 
 void Renderer::setFORRotation(const al::Vec3f& forRotation)
 {
-    boost::mutex::scoped_lock(uniformsMutex);
+    std::unique_lock<std::mutex> lk(uniformsMutex);
     this->forRotation = forRotation;
 }
 
 void Renderer::setFORAngle(float forAngle)
 {
-    boost::mutex::scoped_lock(uniformsMutex);
+    std::unique_lock<std::mutex> lk(uniformsMutex);
     this->forAngle = forAngle;
 }
 
 void Renderer::setRotation(const al::Vec3f& rotation)
 {
-    boost::mutex::scoped_lock(uniformsMutex);
+    std::unique_lock<std::mutex> lk(uniformsMutex);
     this->rotation = rotation;
 }
 
 void Renderer::setRotationSpeed(float speed)
 {
-    boost::mutex::scoped_lock(uniformsMutex);
+    std::unique_lock<std::mutex> lk(uniformsMutex);
     this->rotationSpeed = speed;
 }
 
 void Renderer::setForceMono(bool forceMono)
 {
-    boost::mutex::scoped_lock(uniformsMutex);
+    std::unique_lock<std::mutex> lk(uniformsMutex);
     this->forceMono = forceMono;
 }
 
 void Renderer::setCubemapSource(CubemapSource* cubemapSource)
 {
-    cubemapSource->setOnNextCubemap(boost::bind(&Renderer::onNextCubemap,
+    using namespace std::placeholders;
+    cubemapSource->setOnNextCubemap(std::bind(&Renderer::onNextCubemap,
                                                 this,
                                                 _1,
                                                 _2));
@@ -372,55 +373,55 @@ void Renderer::setCubemapSource(CubemapSource* cubemapSource)
 
 float Renderer::getGammaMin()
 {
-    boost::mutex::scoped_lock(uniformsMutex);
+    std::unique_lock<std::mutex> lk(uniformsMutex);
     return gammaMin;
 }
 
 float Renderer::getGammaMax()
 {
-    boost::mutex::scoped_lock(uniformsMutex);
+    std::unique_lock<std::mutex> lk(uniformsMutex);
     return gammaMax;
 }
 
 float Renderer::getGammaPow()
 {
-    boost::mutex::scoped_lock(uniformsMutex);
+    std::unique_lock<std::mutex> lk(uniformsMutex);
     return gammaPow;
 }
 
 const al::Vec3f& Renderer::getFORRotation()
 {
-    boost::mutex::scoped_lock(uniformsMutex);
+    std::unique_lock<std::mutex> lk(uniformsMutex);
     return forRotation;
 }
 
 float Renderer::getFORAngle()
 {
-    boost::mutex::scoped_lock(uniformsMutex);
+    std::unique_lock<std::mutex> lk(uniformsMutex);
     return forAngle;
 }
 
 const al::Vec3f& Renderer::getRotation()
 {
-    boost::mutex::scoped_lock(uniformsMutex);
+    std::unique_lock<std::mutex> lk(uniformsMutex);
     return rotation;
 }
 
 float Renderer::getRotationSpeed()
 {
-    boost::mutex::scoped_lock(uniformsMutex);
+    std::unique_lock<std::mutex> lk(uniformsMutex);
     return rotationSpeed;
 }
 
 bool Renderer::getForceMono()
 {
-    boost::mutex::scoped_lock(uniformsMutex);
+    std::unique_lock<std::mutex> lk(uniformsMutex);
     return forceMono;
 }
 
 std::vector<std::pair<int, int>> Renderer::getFaceResolutions()
 {
-    boost::mutex::scoped_lock(uniformsMutex);
+    std::unique_lock<std::mutex> lk(uniformsMutex);
     std::vector<std::pair<int, int>> resolutions;
     for (auto texture : textures)
     {

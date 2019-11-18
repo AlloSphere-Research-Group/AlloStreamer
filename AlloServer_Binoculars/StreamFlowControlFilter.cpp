@@ -1,4 +1,4 @@
-#include <boost/chrono.hpp>
+#include <chrono>
 #include <boost/predef.h>
 #include <algorithm>
 
@@ -73,7 +73,7 @@ void StreamFlowControlFilter::deliverChunk()
 	processedBytes += fFrameSize;
 
 #if BOOST_OS_WINDOWS
-	auto durationPerKBit = boost::chrono::nanoseconds(boost::ratio_multiply<boost::giga, boost::kilo>::num / bandwidth);
+	auto durationPerKBit = std::chrono::nanoseconds(boost::ratio_multiply<boost::giga, boost::kilo>::num / bandwidth);
 
 	LARGE_INTEGER StartingTime, EndingTime, ElapsedMicroseconds;
 	LARGE_INTEGER Frequency;
@@ -100,20 +100,20 @@ void StreamFlowControlFilter::deliverChunk()
 	ElapsedMicroseconds.QuadPart *= 1000000;
 	ElapsedMicroseconds.QuadPart /= Frequency.QuadPart;
 
-	auto isDuration = boost::chrono::microseconds(ElapsedMicroseconds.QuadPart);
+	auto isDuration = std::chrono::microseconds(ElapsedMicroseconds.QuadPart);
 	auto shouldDuration = durationPerKBit * fFrameSize * 8 / 1000;
 	auto coolDownDuration = shouldDuration - isDuration;
 
 	// Let network cool down
 	QueryPerformanceCounter(&StartingTime);
-	boost::chrono::microseconds elapsedCoolDownDuration;
+	std::chrono::microseconds elapsedCoolDownDuration;
 	do
 	{
 		QueryPerformanceCounter(&EndingTime);
 		ElapsedMicroseconds.QuadPart = EndingTime.QuadPart - StartingTime.QuadPart;
 		ElapsedMicroseconds.QuadPart *= 1000000;
 		ElapsedMicroseconds.QuadPart /= Frequency.QuadPart;
-		elapsedCoolDownDuration = boost::chrono::microseconds(ElapsedMicroseconds.QuadPart);
+		elapsedCoolDownDuration = std::chrono::microseconds(ElapsedMicroseconds.QuadPart);
 	} while (elapsedCoolDownDuration < coolDownDuration);
 #endif
 }
