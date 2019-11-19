@@ -1,12 +1,13 @@
 #pragma once
 
-#include <boost/function.hpp>
+//#include <boost/function.hpp>
 #include <vector>
+#include <functional>
 
 class CommandHandler
 {
 public:
-    typedef boost::function<void (const std::vector<std::string>& values)> OnEnteredCommand;
+    typedef std::function<void (const std::vector<std::string>& values)> OnEnteredCommand;
     
     struct Command
     {

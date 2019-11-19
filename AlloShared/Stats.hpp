@@ -2,13 +2,14 @@
 
 #include <vector>
 #include <chrono>
-#include <boost/accumulators/accumulators.hpp>
 #include <mutex>
 #include <functional>
 #include <initializer_list>
 #include <thread>
 #include <map>
 #include <list>
+
+#include <boost/accumulators/accumulators.hpp>
 #include <boost/any.hpp>
 
 class Stats
@@ -19,7 +20,7 @@ public:
     public:
         TimeValueDatum(const boost::any& value) : time(std::chrono::steady_clock::now()), value(value) {}
 		const std::chrono::steady_clock::time_point time;
-		const boost::any value;
+        const boost::any value;
     };
     
     class StatVal

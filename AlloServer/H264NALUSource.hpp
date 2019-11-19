@@ -3,7 +3,7 @@
 #include <FramedSource.hh>
 #include <boost/thread/barrier.hpp>
 #include <boost/thread/synchronized_value.hpp>
-#include <boost/thread/condition.hpp>
+//#include <boost/thread/condition.hpp>
 #include <thread>
 
 extern "C"

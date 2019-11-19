@@ -1,6 +1,7 @@
 #include "CubemapExtractionPlugin.h"
 #include "FrameD3D11.hpp"
-#include <boost/thread/mutex.hpp>
+
+//#include <mutex>
 
 #if SUPPORT_D3D11
 

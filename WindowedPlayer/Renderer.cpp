@@ -1,5 +1,7 @@
 #include "Renderer.hpp"
 
+#include <iostream>
+
 Renderer::Renderer(CubemapSource* cubemapSource)
     :
 	cubemapSource(cubemapSource), renderer(nullptr)

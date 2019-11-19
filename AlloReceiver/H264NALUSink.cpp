@@ -7,7 +7,7 @@
 
 #include "H264NALUSink.hpp"
 
-namespace bc = boost::chrono;
+//namespace bc = boost::chrono;
 
 const size_t MAX_NALUS_PER_PKT = 30;
 unsigned char const START_CODE[4] = { 0x00, 0x00, 0x00, 0x01 };
@@ -577,15 +577,15 @@ void H264NALUSink::decodeFrameLoop()
         }
         
 
-		bc::microseconds nowSinceEpoch =
-			bc::duration_cast<bc::microseconds>(bc::system_clock::now().time_since_epoch());
+        std::chrono::microseconds nowSinceEpoch =
+            std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch());
 
 		AVRational microSecBase = { 1, 1000000 };
-		bc::microseconds presentationTimeSinceEpoch =
-			bc::microseconds(av_rescale_q(pkt->pts, codecContext->time_base, microSecBase));
+        std::chrono::microseconds presentationTimeSinceEpoch =
+            std::chrono::microseconds(av_rescale_q(pkt->pts, codecContext->time_base, microSecBase));
 
 
-		bc::microseconds relativePresentationTime = presentationTimeSinceEpoch - nowSinceEpoch;
+        std::chrono::microseconds relativePresentationTime = presentationTimeSinceEpoch - nowSinceEpoch;
 
 		sumRelativePresentationTimeMicroSec += relativePresentationTime.count();
 		if (maxRelativePresentationTimeMicroSec > relativePresentationTime.count())
@@ -600,7 +600,7 @@ void H264NALUSink::decodeFrameLoop()
 			sumRelativePresentationTimeMicroSec = 0;
 			maxRelativePresentationTimeMicroSec = 0;
             
-            //std::cout << stats.summary(bc::milliseconds(1001)) << std::endl;
+            //std::cout << stats.summary(std::chrono::milliseconds(1001)) << std::endl;
 		}
 
 		counter++;

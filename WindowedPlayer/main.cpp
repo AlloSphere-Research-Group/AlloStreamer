@@ -1,8 +1,6 @@
 
-
 #include <boost/filesystem.hpp>
 #include <boost/program_options.hpp>
-#include <boost/ref.hpp>
 #include <boost/thread/barrier.hpp>
 
 #include "AlloReceiver/RTSPCubemapSourceClient.hpp"

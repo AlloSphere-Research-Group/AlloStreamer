@@ -1,6 +1,6 @@
 #pragma once
 
-#include <boost/cstdint.hpp>
+#include <cstdint>
 #include "UnityPluginInterface.h"
 #include "AlloShared/Cubemap.hpp"
 

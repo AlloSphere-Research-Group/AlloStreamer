@@ -1,10 +1,11 @@
 #include <iostream>
 #include <string>
+
 #include <boost/asio.hpp>
-#include "AlloShared/StatsUtils.hpp"
 #include <boost/bind.hpp>
 #include <boost/algorithm/string/join.hpp>
 
+#include "AlloShared/StatsUtils.hpp"
 #include "AlloReceiver/Stats.hpp"
 
 static Stats stats;

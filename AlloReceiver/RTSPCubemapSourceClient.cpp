@@ -1,4 +1,4 @@
-    #include <boost/algorithm/string.hpp>
+
 #include <boost/algorithm/string_regex.hpp>
 
 #include "H264NALUSink.hpp"
@@ -6,6 +6,7 @@
 #include "RTSPCubemapSourceClient.hpp"
 
 #include <iomanip>
+#include <iostream>
 
 void RTSPCubemapSourceClient::setOnDidConnect(const std::function<void (RTSPCubemapSourceClient*, CubemapSource*)>& onDidConnect)
 {
@@ -479,7 +480,7 @@ void RTSPCubemapSourceClient::continueAfterDESCRIBE(RTSPClient* self_, int resul
 	for (int i = 0; i < self->envs.size(); i++)
 	{
 		std::thread* abc = new std::thread(std::bind(&TaskScheduler::doEventLoop, &self->envs[i]->taskScheduler(), nullptr));
-		self->sessionThreads.push_back(boost::shared_ptr<std::thread>(abc));
+        self->sessionThreads.push_back(std::shared_ptr<std::thread>(abc));
 	}
 }
 

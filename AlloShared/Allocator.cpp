@@ -2,14 +2,14 @@
 
 void* HeapAllocator::allocate(size_t bytes)
 {
-    std::allocator<boost::uint8_t> allocator;
+    std::allocator<uint8_t> allocator;
     return allocator.allocate(bytes);
 }
 
 void HeapAllocator::deallocate(void* object, size_t size)
 {
-    std::allocator<boost::uint8_t> allocator;
-    return allocator.deallocate((boost::uint8_t*)object, size);
+    std::allocator<uint8_t> allocator;
+    return allocator.deallocate((uint8_t*)object, size);
 }
 
 ShmAllocator::ShmAllocator(ShmAllocator::BoostShmAllocator& allocator)

@@ -10,8 +10,9 @@
 #include <boost/interprocess/sync/interprocess_mutex.hpp>
 #include <boost/interprocess/sync/interprocess_condition.hpp>
 #include <libavutil/pixfmt.h>
-#include <boost/chrono/system_clocks.hpp>
+//#include <boost/chrono/system_clocks.hpp>
 #include <array>
+#include <chrono>
 
 #include "Allocator.h"
 #include "Frame.hpp"

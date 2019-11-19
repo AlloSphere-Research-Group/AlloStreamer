@@ -1,8 +1,10 @@
 #include <vector>
 #include <unordered_map>
 #include <functional>
+#include <iostream>
 #include <boost/accumulators/accumulators.hpp>
 #include <boost/accumulators/statistics/median.hpp>
+
 extern "C"
 {
     #include <libavcodec/avcodec.h>

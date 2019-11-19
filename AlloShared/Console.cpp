@@ -3,7 +3,8 @@
 #include <readline/history.h>
 #include <regex>
 #include <functional>
-#include <boost/algorithm/string/join.hpp>
+#include <functional>
+//#include <boost/algorithm/string/join.hpp>
 
 #include "Console.hpp"
 

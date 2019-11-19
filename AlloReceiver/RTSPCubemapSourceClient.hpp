@@ -70,7 +70,7 @@ protected:
     
 private:
 	std::vector<BasicUsageEnvironment*> envs;
-	std::vector<boost::shared_ptr<std::thread>> sessionThreads;
+    std::vector<std::shared_ptr<std::thread>> sessionThreads;
     std::thread networkThread;
 	std::vector<MediaSubsession*> subsessions;
     MediaSubsession* subsession;

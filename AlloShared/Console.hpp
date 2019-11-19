@@ -1,4 +1,5 @@
-#pragma once
+#ifndef CONSOLE_HPP
+#define CONSOLE_HPP
 
 #include <iostream>
 #include <thread>
@@ -36,3 +37,5 @@ private:
     static std::vector<CommandHandler::Command> const* currentCommands;
     CommandHandler& commandHandler;
 };
+
+#endif // CONSOLE_HPP

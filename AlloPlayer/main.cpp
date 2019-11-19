@@ -1,7 +1,4 @@
 #include <boost/filesystem.hpp>
-#include <boost/ref.hpp>
-#include <boost/algorithm/string/classification.hpp>
-#include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
 
 #include <iomanip>
